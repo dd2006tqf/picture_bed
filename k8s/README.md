@@ -149,9 +149,16 @@ kubectl exec -it <mysql-pod-name> -- mysql -uroot -pqwer < /tmp/tuchuang.sql
 ## Configuration Notes
 
 - **Storage Class**: All PVCs use the `standard` storage class. Adjust based on your cluster's available storage classes.
-- **Passwords**: Default MySQL password is `qwer`. Change this in production environments.
+- **Passwords**: Default MySQL password is `qwer` (matching the original application configuration). **Important**: For production deployments, use Kubernetes Secrets instead of plain-text passwords:
+  ```bash
+  # Create a secret for MySQL password
+  kubectl create secret generic mysql-secret --from-literal=root-password=your-secure-password
+  
+  # Reference it in your deployment using secretKeyRef instead of value
+  ```
 - **Image Names**: Replace placeholder image names (e.g., `placeholder/mysql`) with actual Docker images.
 - **Host Name**: Update `cloud.example.com` in the ingress configuration to your actual domain.
+- **Port Mapping**: The FastCGI backend service maps external port 9000 to the internal container port 8081 for ingress routing compatibility.
 - **Resource Limits**: Consider adding resource requests and limits for production deployments.
 
 ## Cleanup
