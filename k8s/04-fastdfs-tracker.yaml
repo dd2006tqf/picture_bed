@@ -29,6 +29,13 @@ spec:
           image: placeholder/fastdfs-tracker:latest
           ports:
             - containerPort: 22122
+          env:
+            # Improved load balancing algorithm configuration
+            # Considers disk performance and task utilization in addition to remaining space
+            - name: FDFS_STORE_LOOKUP
+              value: "2"  # 0: round robin, 1: max free space, 2: improved load balancing
+            - name: FDFS_STORE_GROUP
+              value: "0"  # Which group to store files (0: auto select)
           volumeMounts:
             - name: tracker-storage
               mountPath: /var/fdfs

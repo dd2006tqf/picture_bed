@@ -41,9 +41,21 @@ spec:
           env:
             - name: TRACKER_SERVER
               value: "fastdfs-tracker-svc:22122"
+            # Enable performance monitoring for improved load balancing
+            - name: FDFS_DISK_STAT_INTERVAL
+              value: "60"  # Disk performance statistics interval (seconds)
+            - name: FDFS_SYNC_STAT_INTERVAL
+              value: "300"  # Sync statistics interval (seconds)
           volumeMounts:
             - name: storage-data
               mountPath: /var/fdfs
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
       volumes:
         - name: storage-data
           persistentVolumeClaim:

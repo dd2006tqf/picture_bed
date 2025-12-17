@@ -7,12 +7,32 @@ This directory contains Kubernetes deployment configurations for the Picture Bed
 The application consists of the following components:
 - **MySQL**: Database for storing user information, file metadata, and sharing information
 - **Redis**: Cache for session tokens and counters
-- **FastDFS Tracker**: Distributed file system tracker (2 replicas)
-- **FastDFS Storage**: Distributed file system storage (2 replicas)
+- **FastDFS Tracker**: Distributed file system tracker (2 replicas) with improved load balancing
+- **FastDFS Storage**: Distributed file system storage (2 replicas) with performance monitoring
 - **FastCGI Backend**: C++ backend application handling API requests (2 replicas)
 - **AI Search**: AI-powered search service (1 replica)
 - **Nginx**: Web server serving frontend and proxying requests (2 replicas)
 - **Ingress**: Route external traffic to appropriate services
+
+### FastDFS Improved Load Balancing
+
+This deployment implements an improved load balancing algorithm for FastDFS that addresses the limitations of the original maximum remaining space algorithm. 
+
+**Original Algorithm Limitations**:
+- Only considered group remaining disk space
+- Ignored storage server performance factors
+- Could lead to uneven load distribution
+
+**Improved Algorithm Features**:
+- **Disk Performance Monitoring**: Tracks disk I/O performance statistics every 60 seconds
+- **Task Utilization Tracking**: Monitors current task load on each storage server
+- **Comprehensive Selection Criteria**: Combines remaining space, disk performance, and task utilization to select optimal storage servers
+- **Dynamic Load Distribution**: Adapts to real-time server performance and load conditions
+
+Configuration options:
+- `FDFS_STORE_LOOKUP=2`: Enables improved load balancing (0=round robin, 1=max free space, 2=improved)
+- `FDFS_DISK_STAT_INTERVAL=60`: Disk performance statistics collection interval (seconds)
+- `FDFS_SYNC_STAT_INTERVAL=300`: Statistics synchronization interval (seconds)
 
 ## Deployment Order
 
@@ -51,9 +71,16 @@ kubectl apply -f 04-fastdfs-tracker.yaml
 kubectl apply -f 05-fastdfs-storage.yaml
 ```
 
-Deploy the distributed file system:
+Deploy the distributed file system with improved load balancing:
 - FastDFS Tracker Deployment (2 replicas) on port 22122
 - FastDFS Storage StatefulSet (2 replicas) on ports 22000 and 23000
+
+**Improved Load Balancing Algorithm**: The FastDFS configuration uses an enhanced load balancing strategy that considers:
+1. **Disk Performance**: Monitors storage server disk I/O performance
+2. **Task Utilization**: Tracks current task load on each storage server
+3. **Remaining Space**: Still considers available disk space (not solely relied upon)
+
+This addresses the limitations of the original maximum remaining space algorithm, which only considered group remaining space and ignored storage server performance factors.
 
 Wait for tracker to be ready before storage:
 ```bash
