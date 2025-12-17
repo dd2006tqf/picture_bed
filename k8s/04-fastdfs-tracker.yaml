@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastdfs-tracker-svc
+spec:
+  selector:
+    app: fastdfs-tracker
+  ports:
+    - port: 22122
+      targetPort: 22122
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastdfs-tracker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastdfs-tracker
+  template:
+    metadata:
+      labels:
+        app: fastdfs-tracker
+    spec:
+      containers:
+        - name: fastdfs-tracker
+          image: placeholder/fastdfs-tracker:latest
+          ports:
+            - containerPort: 22122
+          volumeMounts:
+            - name: tracker-storage
+              mountPath: /var/fdfs
+      volumes:
+        - name: tracker-storage
+          persistentVolumeClaim:
+            claimName: fastdfs-tracker-pvc

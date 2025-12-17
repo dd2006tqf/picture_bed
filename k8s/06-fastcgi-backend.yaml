@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastcgi-svc
+spec:
+  selector:
+    app: fastcgi-backend
+  ports:
+    - port: 9000
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastcgi-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastcgi-backend
+  template:
+    metadata:
+      labels:
+        app: fastcgi-backend
+    spec:
+      containers:
+        - name: fastcgi-backend
+          image: placeholder/fastcgi-backend:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: MYSQL_HOST
+              value: "mysql-svc"
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DB
+              value: "0voice_tuchuang"
+            - name: MYSQL_USER
+              value: "root"
+            - name: MYSQL_PASSWORD
+              value: "qwer"
+            - name: REDIS_HOST
+              value: "redis-svc"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: FASTDFS_TRACKER
+              value: "fastdfs-tracker-svc:22122"

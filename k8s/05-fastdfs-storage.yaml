@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastdfs-storage-svc
+spec:
+  clusterIP: None
+  selector:
+    app: fastdfs-storage
+  ports:
+    - port: 23000
+      targetPort: 23000
+      name: http
+    - port: 22000
+      targetPort: 22000
+      name: storage
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fastdfs-storage
+spec:
+  serviceName: fastdfs-storage-svc
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastdfs-storage
+  template:
+    metadata:
+      labels:
+        app: fastdfs-storage
+    spec:
+      containers:
+        - name: fastdfs-storage
+          image: placeholder/fastdfs-storage:latest
+          ports:
+            - containerPort: 23000
+              name: http
+            - containerPort: 22000
+              name: storage
+          env:
+            - name: TRACKER_SERVER
+              value: "fastdfs-tracker-svc:22122"
+          volumeMounts:
+            - name: storage-data
+              mountPath: /var/fdfs
+      volumes:
+        - name: storage-data
+          persistentVolumeClaim:
+            claimName: fastdfs-storage-pvc
