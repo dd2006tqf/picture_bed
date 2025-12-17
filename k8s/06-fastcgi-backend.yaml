@@ -8,7 +8,7 @@ spec:
     app: fastcgi-backend
   ports:
     - port: 9000
-      targetPort: 8081
+      targetPort: 8081  # Backend app listens on 8081, exposed as 9000 for ingress routing
 ---
 apiVersion: apps/v1
 kind: Deployment
