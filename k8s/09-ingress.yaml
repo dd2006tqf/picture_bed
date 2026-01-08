@@ -1,0 +1,31 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: picture-bed-ingress
+spec:
+  rules:
+    - host: cloud.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: fastcgi-svc
+                port:
+                  number: 9000
+          - path: /download
+            pathType: Prefix
+            backend:
+              service:
+                name: fastdfs-storage-svc
+                port:
+                  number: 23000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-svc
+                port:
+                  number: 80
